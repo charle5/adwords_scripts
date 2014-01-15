@@ -25,14 +25,13 @@ var CAMPAIGN_LABEL = '';
 // Cost Per Click = Cost/Clicks
 var VISITORS_METRIC = 'Impressions';
 var CONVERSIONS_METRIC = 'Clicks';
-// [][todo] write a function that determines whether there are enough
-// imps/clicks for an ad's results to be stat. sig. instead of arbitraily
-// assigning a value here. perhaps 2-tailed t-test?
-var IMPRESSIONS_THRESHOLD = 100;
+// changed from imps to clicks. this script uses p-value and z-score to
+// compare results. might want to think about using two-tail t-test?
+var CONVERSIONS_THRESHOLD = 10;
 //Set this on the first run which should be the approximate last time
 //you started a new creative test. After the first run, this setting
 //will be ignored.
-var OVERRIDE_LAST_TOUCHED_DATE = 'Dec 9, 2013';
+var OVERRIDE_LAST_TOUCHED_DATE = '';
 
 var LOSER_LABEL = 'Loser '+CONFIDENCE_LEVEL+'% Confidence';
 var CHAMPION_LABEL = 'Current Champion';
@@ -88,8 +87,8 @@ function main() {
       continue;
     }
     var stats = ag.getStatsFor(lastTouchedDate, todayDate);
-    var imps = stats.getImpressions();
-    if(imps >= IMPRESSIONS_THRESHOLD) {
+    var conv = stats.getConversions();
+    if(conv >= CONVERSIONS_THRESHOLD) {
       //Is there a previous winner? if so we should use it as the control.
       var controlAd = checkForPreviousWinner(ag);
 
@@ -143,7 +142,7 @@ function main() {
         }
       }
     } else {
-      info('AdGroup did not have enough impressions. Had: '+imps+' Needed: '+IMPRESSIONS_THRESHOLD);
+      info('AdGroup did not have enough impressions. Had: '+conv+' Needed: '+CONVERSIONS_THRESHOLD);
     }
     //Let's bail if we run out of time so we can send the emails.
     if((!AdWordsApp.getExecutionInfo().isPreview() && AdWordsApp.getExecutionInfo().getRemainingTime() < 60) ||
